@@ -317,6 +317,16 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5084083310391691175, guid: 19fb087258dede14b9e8d36db921ee97,
+        type: 3}
+      propertyPath: frameRate
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5084083310391691175, guid: 19fb087258dede14b9e8d36db921ee97,
+        type: 3}
+      propertyPath: angleRate
+      value: 16
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19fb087258dede14b9e8d36db921ee97, type: 3}
 --- !u!1001 &396540305

@@ -9,15 +9,13 @@ public class PlayerController : MonoBehaviour
 {
     public float speed = 10;
     public float upForce = 20.0f;
-    public float animationFrameRate = 10f;
-    public float animationRate = 10.0f;
 
     [SerializeField] GameObject brokenParticle;
     [SerializeField] float brokenTime = 0.5f;
     [SerializeField] GameObject gameController;
 
     private Vector3 force = new Vector3();
-    private new Rigidbody rigidbody;
+    private Rigidbody rigidbody;
     private bool collisionFlag = false;
     private bool toJump = false;
     private bool isStarted = false;
@@ -87,24 +85,17 @@ public class PlayerController : MonoBehaviour
         GameObject particleInstance = GameObject.Instantiate(brokenParticle, transform.position, Quaternion.identity);
         gameController.GetComponent<GameController>().ResetScene(brokenTime);
         Destroy(particleInstance, brokenTime);
-        rigidbody.velocity = Vector3.zero;
-        rigidbody.isKinematic = true;
+        Destroy(this);
+        Destroy(rigidbody);
         Destroy(gameObject, brokenTime);
     }
     public void SetClear()
     {
         //レベルクリア時の処理
-        rigidbody.isKinematic = true;
         transform.LookAt(GameObject.Find("Main Camera").transform);
-        StartCoroutine(ClearAnimationCoroutine());
-    }
-
-    private IEnumerator ClearAnimationCoroutine()
-    {
-        for (; ; ) {
-            transform.Rotate(Vector3.forward * animationRate);
-            yield return new WaitForSeconds(1 / animationFrameRate);
-        }
-
+        ClearAnimation clearAnimation= gameObject.GetComponent<ClearAnimation>();
+        clearAnimation.enabled = true;
+        Destroy(this);
+        Destroy(rigidbody);
     }
 }
