@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class GameController : MonoBehaviour {
+public class GameController : MonoBehaviour
+{
     [SerializeField] Canvas canvas;
     [SerializeField] Image scoreImage;
     [SerializeField] GameObject winnerLabelObject;
     [SerializeField] GameObject winnerLabel;
     [SerializeField] GameObject gameStartCanvas;
+    [SerializeField] ItemManager itemManager;
     public GameObject player;
     public bool isStarted = false;
 
@@ -26,52 +28,71 @@ public class GameController : MonoBehaviour {
     private bool isStart = false;
     private float pastTime = 0.0f;
 
-    public void Start()
+
+    public enum GameState
     {
-        initialCount = GameObject.FindGameObjectsWithTag("Item").Length;
-        currentCount = initialCount;
+        Ready, Play, Fault, Clear
+    };
+    GameState gameState = GameState.Ready;
+
+    private void Awake()
+    {
+        itemManager = GameObject.Find("ItemManager").GetComponent<ItemManager>();
+    }
+    void Start()
+    {
+        initialCount = itemManager.lastCount;
         scoreController = scoreImage.GetComponent<ScoreController>();
         canvas.gameObject.SetActive(true);
         scoreController.SetGageUnit(initialCount);
-        scoreController.ChangeValue(0);
-        pastTime = 0.0f;
+        scoreController.ChangeValue(1);
+
     }
 
-    public void Update()
+    void Update()
     {
         if (!isStart) {
             if (isStarted) {
                 isStart = true;
                 gameStartCanvas.SetActive(false);
+                pastTime = 0.0f;
             }
         }
         else {
             pastTime += Time.deltaTime;
-            int count = GameObject.FindGameObjectsWithTag("Item").Length;
-            if (count != currentCount) {
-                scoreController.ChangeValue((initialCount - count) / (float)initialCount);
-                currentCount = count;
-                if (count == 0) {
-                    // オブジェクトをアクティブにする
-                    winnerLabelObject.SetActive(true);
-                    if (pastTime < goodTime) {
-                        winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[0];
-                    }
-                    else if (pastTime < normalTime) {
-                        winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[1];
-                    }
-                    else {
-                        winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[2];
-                    }
-
-                    player.GetComponent<PlayerController>().SetClear();
-
-                }
-
-            }
         }
-
     }
+
+    public void CatchItem(int lastItemCount)
+    {
+        scoreController.ChangeValue((float)lastItemCount/initialCount);
+        if (lastItemCount == 0) {
+            Clear();
+        }
+    }
+
+    public void GameStart()
+    {
+        gameStartCanvas.SetActive(false);
+        pastTime = 0.0f;
+    }
+
+    public void Clear()
+    {
+        // オブジェクトをアクティブにする
+        winnerLabelObject.SetActive(true);
+        if (pastTime < goodTime) {
+            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[0];
+        }
+        else if (pastTime < normalTime) {
+            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[1];
+        }
+        else {
+            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[2];
+        }
+        player.GetComponent<PlayerController>().SetClear();
+    }
+
     int sceneIndex;
     float waitTimeSave;
     public void ResetScene(float waitTime)

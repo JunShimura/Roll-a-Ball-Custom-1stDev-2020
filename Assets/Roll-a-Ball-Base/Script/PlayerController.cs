@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float brokenTime = 0.5f;
     [SerializeField] GameObject gameController;
 
+    private GameObject particleInstance;
+
     private Vector3 force = new Vector3();
     private Rigidbody rigidbody;
     private bool collisionFlag = false;
@@ -25,6 +27,9 @@ public class PlayerController : MonoBehaviour
     {
         gameController = GameObject.FindGameObjectWithTag("GameController");
         gameController.GetComponent<GameController>().player = this.gameObject;
+        particleInstance = GameObject.Instantiate(brokenParticle, transform.position, Quaternion.identity);
+        particleInstance.transform.SetParent(this.gameObject.transform);
+        particleInstance.SetActive(false);
     }
     private void Start()
     {
@@ -82,7 +87,7 @@ public class PlayerController : MonoBehaviour
     public void SetBroken()
     {
         //破壊された時の処理
-        GameObject particleInstance = GameObject.Instantiate(brokenParticle, transform.position, Quaternion.identity);
+        particleInstance.SetActive(true);
         gameController.GetComponent<GameController>().ResetScene(brokenTime);
         Destroy(particleInstance, brokenTime);
         Destroy(this);

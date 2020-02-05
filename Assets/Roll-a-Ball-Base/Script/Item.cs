@@ -38,6 +38,11 @@ public class Item : MonoBehaviour
             Destroy(renderer,destroyDelayTime);
             innerLight.gameObject.SetActive(true);
             Destroy(gameObject,destroyDelayTime);
+            transform.parent.GetComponent<ItemManager>().DeleteItem(this.gameObject);
         }
+    }
+    private void OnDestroy()
+    {
+        //transform.parent.GetComponent<ItemManager>().DeleteItem(this.gameObject);
     }
 }

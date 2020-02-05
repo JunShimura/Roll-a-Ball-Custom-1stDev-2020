@@ -87,8 +87,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   upForce: 400
-  animationFrameRate: 60
-  animationRate: 15
   brokenParticle: {fileID: 1508732274425114, guid: f85c9dacddac79c40a679b3b3bd05751,
     type: 3}
   brokenTime: 0.75
