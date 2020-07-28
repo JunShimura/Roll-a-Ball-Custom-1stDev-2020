@@ -5,30 +5,28 @@ using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : MonoBehaviour
+{
     public float speed = 10;
     public float upForce = 20.0f;
+    public float animationFrameRate = 10f;
+    public float animationRate = 10.0f;
 
     [SerializeField] GameObject brokenParticle;
     [SerializeField] float brokenTime = 0.5f;
     [SerializeField] GameObject gameController;
 
-    private GameObject particleInstance;
-
     private Vector3 force = new Vector3();
-    private Rigidbody rigidbody;
+    private new Rigidbody rigidbody;
     private bool collisionFlag = false;
     private bool toJump = false;
     private bool isStarted = false;
-    private List<GameObject> contactGameObject = new List<GameObject>();
+    private List<int> contactGameObjectID = new List<int>();
 
     private void Reset()
     {
         gameController = GameObject.FindGameObjectWithTag("GameController");
         gameController.GetComponent<GameController>().player = this.gameObject;
-        particleInstance = GameObject.Instantiate(brokenParticle, transform.position, Quaternion.identity);
-        particleInstance.transform.SetParent(this.gameObject.transform);
-        particleInstance.SetActive(false);
     }
     private void Start()
     {
@@ -42,15 +40,13 @@ public class PlayerController : MonoBehaviour {
         force.x = Input.GetAxis("Horizontal") * speed;
         force.z = Input.GetAxis("Vertical") * speed;
 
-        if (Input.GetButtonDown("Jump")) {
-            CleanContacts();
-            if (collisionFlag && !toJump) {
-                toJump = true;
-                force.y = upForce;
-            }
+        if (Input.GetButtonDown("Jump") && collisionFlag && !toJump)
+        {
+            toJump = true;
+            force.y = upForce;
         }
-
-        if (!isStarted && force.magnitude != 0.0f) {
+        if (!isStarted && force.magnitude != 0.0f)
+        {
             isStarted = true;
             gameController.GetComponent<GameController>().isStarted = true;
         }
@@ -58,7 +54,8 @@ public class PlayerController : MonoBehaviour {
 
     void FixedUpdate()
     {
-        if (force != Vector3.zero & rigidbody != null) {
+        if (force != Vector3.zero & rigidbody != null)
+        {
             rigidbody.AddForce(force * speed);
             toJump = false;
             force.y = 0;
@@ -67,55 +64,58 @@ public class PlayerController : MonoBehaviour {
     private void OnCollisionEnter(Collision collision)
     {
         collisionFlag = true;
-        if (!contactGameObject.Contains(collision.gameObject)) {
-            contactGameObject.Add(collision.gameObject);
+        if (!contactGameObjectID.Contains(collision.gameObject.GetInstanceID()))
+        {
+            contactGameObjectID.Add(collision.gameObject.GetInstanceID());
         }
     }
     private void OnCollisionStay(Collision collision)
     {
         collisionFlag = true;
-        if (!contactGameObject.Contains(collision.gameObject)) {
-            contactGameObject.Add(collision.gameObject);
+        if (!contactGameObjectID.Contains(collision.gameObject.GetInstanceID()))
+        {
+            contactGameObjectID.Add(collision.gameObject.GetInstanceID());
         }
     }
     private void OnCollisionExit(Collision collision)
     {
-        if (contactGameObject.Contains(collision.gameObject)) {
-            contactGameObject.Remove(collision.gameObject);
+        if (contactGameObjectID.Contains(collision.gameObject.GetInstanceID()))
+        {
+            contactGameObjectID.Remove(collision.gameObject.GetInstanceID());
         }
-        if (contactGameObject.Count == 0) {
-            collisionFlag = false;
-        }
-    }
-    void CleanContacts()
-    {
-        for (int i = 0; i < contactGameObject.Count; i++) {
-            if (contactGameObject[i].gameObject == null) {
-                contactGameObject.RemoveAt(i);
-            }
-        }
-        if (contactGameObject.Count == 0) {
+        if (contactGameObjectID.Count == 0)
+        {
             collisionFlag = false;
         }
     }
     public void SetBroken()
     {
         //破壊された時の処理
-        particleInstance.SetActive(true);
+        GameObject particleInstance = GameObject.Instantiate(brokenParticle, transform.position, Quaternion.identity);
         gameController.GetComponent<GameController>().ResetScene(brokenTime);
         Destroy(particleInstance, brokenTime);
-        Destroy(this);
-        Destroy(rigidbody);
-        Destroy(GetComponent<Collider>());
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        rigidbody.isKinematic = true;
         Destroy(gameObject, brokenTime);
     }
     public void SetClear()
     {
         //レベルクリア時の処理
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        rigidbody.isKinematic = true;
         transform.LookAt(GameObject.Find("Main Camera").transform);
-        ClearAnimation clearAnimation = gameObject.GetComponent<ClearAnimation>();
-        clearAnimation.enabled = true;
-        Destroy(this);
-        Destroy(rigidbody);
+        StartCoroutine(ClearAnimationCoroutine());
+    }
+
+    private IEnumerator ClearAnimationCoroutine()
+    {
+        for (; ; )
+        {
+            transform.Rotate(Vector3.forward * animationRate);
+            yield return new WaitForSeconds(1 / animationFrameRate);
+        }
+
     }
 }
