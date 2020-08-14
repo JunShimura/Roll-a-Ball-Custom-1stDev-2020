@@ -4,8 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class GameController : MonoBehaviour
+class GameController : MonoBehaviour
 {
+    //Singlton
+    static GameController _S = null;
+    private GameController()
+    {
+    }
+
     [SerializeField] Canvas canvas;
     [SerializeField] Image scoreImage;
     [SerializeField] GameObject winnerLabelObject;
@@ -14,6 +20,7 @@ public class GameController : MonoBehaviour
     [SerializeField] ItemManager itemManager;
     public GameObject player;
     public bool isStarted = false;
+    ReadyCanvas readyCanvas;
 
 
     [Header("ほめ言葉")]
@@ -31,19 +38,47 @@ public class GameController : MonoBehaviour
 
     public enum GameState
     {
-        Ready, Play, Fault, Clear
+        Awake, Ready, Play, Fault, Clear
     };
-    GameState gameState = GameState.Ready;
+    public static GameState _gameState
+    {
+        get;
+        private set;
+    } = GameState.Awake;
+
 
     private void Awake()
     {
-        itemManager = GameObject.Find("ItemManager").GetComponent<ItemManager>();
+        if (_S == null)
+        {
+            _S = this;
+        }
+        else
+        {
+            Debug.LogError("Duplicated GameController");
+        }
+        canvas.gameObject.SetActive(true);
+        ItemManager[] itemManagers = FindObjectsOfType<ItemManager>();
+        if (itemManagers.Length > 1)
+        {
+            Debug.LogError("Duplicated ItemManager,assigne 1st Item");
+        }
+        itemManager = itemManagers[0];
+    }
+    private void OnEnable()
+    {
+
+
     }
     void Start()
     {
+        _gameState = GameState.Ready;
+        readyCanvas = ReadyCanvas.GetInstance();
+        readyCanvas.SetActive();
+        readyCanvas.terminate = GameStart;
+
         initialCount = itemManager.lastCount;
         scoreController = scoreImage.GetComponent<ScoreController>();
-        canvas.gameObject.SetActive(true);
         scoreController.SetGageUnit(initialCount);
         scoreController.ChangeValue(1);
 
@@ -51,22 +86,26 @@ public class GameController : MonoBehaviour
 
     void Update()
     {
-        if (!isStart) {
-            if (isStarted) {
+        if (!isStart)
+        {
+            if (isStarted)
+            {
                 isStart = true;
                 gameStartCanvas.SetActive(false);
                 pastTime = 0.0f;
             }
         }
-        else {
+        else
+        {
             pastTime += Time.deltaTime;
         }
     }
 
-    public void CatchItem(int lastItemCount)
+    public static void CatchItem(int lastItemCount)
     {
-        scoreController.ChangeValue((float)lastItemCount/initialCount);
-        if (lastItemCount == 0) {
+        _S.scoreController.ChangeValue((float)lastItemCount / _S.initialCount);
+        if (lastItemCount == 0)
+        {
             Clear();
         }
     }
@@ -77,20 +116,23 @@ public class GameController : MonoBehaviour
         pastTime = 0.0f;
     }
 
-    public void Clear()
+    public static void Clear()
     {
         // オブジェクトをアクティブにする
-        winnerLabelObject.SetActive(true);
-        if (pastTime < goodTime) {
-            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[0];
+        _S.winnerLabelObject.SetActive(true);
+        if (_S.pastTime < _S.goodTime)
+        {
+            _S.winnerLabel.GetComponent<Text>().text += "\n" + _S.winnerComment[0];
         }
-        else if (pastTime < normalTime) {
-            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[1];
+        else if (_S.pastTime < _S.normalTime)
+        {
+            _S.winnerLabel.GetComponent<Text>().text += "\n" + _S.winnerComment[1];
         }
-        else {
-            winnerLabel.GetComponent<Text>().text += "\n" + winnerComment[2];
+        else
+        {
+            _S.winnerLabel.GetComponent<Text>().text += "\n" + _S.winnerComment[2];
         }
-        player.GetComponent<PlayerController>().SetClear();
+        _S.player.GetComponent<PlayerController>().SetClear();
     }
 
     int sceneIndex;

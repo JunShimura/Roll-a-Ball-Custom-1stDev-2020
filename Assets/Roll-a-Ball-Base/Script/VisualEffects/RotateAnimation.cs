@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClearAnimation : MonoBehaviour {
+public class RotateAnimation : MonoBehaviour {
     public float angleRate;
     public float frameRate;
     // Start is called before the first frame update
