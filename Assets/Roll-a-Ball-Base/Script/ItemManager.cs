@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ItemManager : MonoBehaviour
 {
+    //Singlton
+    static ItemManager _S = null;
+
     List<GameObject> item = new List<GameObject>();
     GameController gameController;
 
@@ -12,7 +15,14 @@ public class ItemManager : MonoBehaviour
     }
     void Awake()
     {
-        gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        if (_S == null)
+        {
+            _S = this;
+        }
+        else
+        {
+            Debug.LogError("Duplicated ItemManager");
+        }
         GameObject[] temp = GameObject.FindGameObjectsWithTag("Item");
         foreach (GameObject tempItem in temp) {
             tempItem.transform.SetParent(this.transform);
@@ -22,7 +32,7 @@ public class ItemManager : MonoBehaviour
     public int DeleteItem(GameObject lost)
     {
         item.Remove(lost);
-        gameController.CatchItem(item.Count);
+        GameController.CatchItem(item.Count);
         return item.Count;
     }
 }

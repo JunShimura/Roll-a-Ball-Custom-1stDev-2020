@@ -29,7 +29,7 @@ public class Item : MonoBehaviour
     {
         // 接触対象はPlayerタグですか？
         if (hit.CompareTag("Player")) {
-            hit.gameObject.transform.GetComponentInChildren<PlayerRendererController>().SetAnimation();
+            hit.gameObject.transform.GetComponentInChildren<Flash>().SetAnimation();
             // このコンポーネントを持つGameObjectを破棄する
             audioSource.Play();
             collider.enabled = false;

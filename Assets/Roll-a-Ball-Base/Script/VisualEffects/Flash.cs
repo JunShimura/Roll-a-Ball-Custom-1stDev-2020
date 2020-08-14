@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRendererController : MonoBehaviour
+public class Flash : MonoBehaviour
 {
 
     private new Renderer renderer;
