@@ -1,20 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 namespace RollaBall2020.Gage
 {
-    public interface IGage<T>
+    public interface IGageUnit
     {
-        T Length
+        bool state
         {
             get;
             set;
-        }
-        T Value
-        {
-            get;
-            set;
-        }
+        }        
     }
 }

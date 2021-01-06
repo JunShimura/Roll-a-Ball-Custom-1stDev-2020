@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using RollaBall2020.Gage;
+
 [RequireComponent(typeof(Canvas))]
 
-public class ScoreGage : MonoBehaviour,IGage<int>
+public class ScoreGage : MonoBehaviour, IGage<int>
 {
     private int _length = 0;
     public int Length
@@ -15,6 +17,7 @@ public class ScoreGage : MonoBehaviour,IGage<int>
         }
         set
         {
+            SetLength(value);
             _length = value;
         }
     }
@@ -33,12 +36,13 @@ public class ScoreGage : MonoBehaviour,IGage<int>
 
     [SerializeField]
     GameObject gageUnit;
-    void Awake()
+    List<GameObject> gageUnits = new List<GameObject>();
+    private void SetLength(int l)
     {
+        for (int i = 0; i < l; i++) {
+            gageUnits.Add(Instantiate(gageUnit, this.gameObject.transform));
+        }
 
     }
-    void OnEnable()
-    {
 
-    }
 }
