@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class ImageSwitch : MonoBehaviour, RollaBall2020.Gage.IGageUnit
+public class ImageSwitch : RollaBall2020.Gage.GageUnit
 {
     private bool _state;
     public bool state
@@ -30,7 +30,7 @@ public class ImageSwitch : MonoBehaviour, RollaBall2020.Gage.IGageUnit
     {
         image = GetComponent<Image>();
     }
-    private void ChangeImage(bool state)
+    protected override void ChangeImage(bool state)
     {
         if (state) {
             image.sprite = imageOn;

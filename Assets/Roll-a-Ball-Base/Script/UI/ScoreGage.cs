@@ -40,7 +40,7 @@ public class ScoreGage : MonoBehaviour, IGage<int>
     private void SetLength(int l)
     {
         for (int i = 0; i < l; i++) {
-            gageUnits.Add(Instantiate(gageUnit, this.gameObject.transform));
+            gageUnits.Add(Instantiate(gageUnit.gameObject, this.gameObject.transform));
         }
 
     }
